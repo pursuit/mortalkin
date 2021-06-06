@@ -49,3 +49,22 @@ func (this UserServer) Login(ctx context.Context, in *mortalkin_proto.LoginPaylo
 
 	return &resp, nil
 }
+
+func (this UserServer) CreateCharacter(ctx context.Context, in *mortalkin_proto.CreateCharacterPayload) (*mortalkin_proto.CreateCharacterResponse, error) {
+	var claims pkg.Jwt
+	_, err := jwt.ParseWithClaims(in.GetToken(), &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("zxcwqe"), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	characterID, err := game.CreateCharacter(claims.ID, in.GetName())
+	if err != nil {
+		return nil, err
+	}
+
+	return &mortalkin_proto.CreateCharacterResponse{
+		CharacterId: int64(characterID),
+	}, nil
+}

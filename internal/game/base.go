@@ -43,7 +43,7 @@ func GetCharacters(id int) []character {
 	return characters
 }
 
-func CreateCharacter(id int, name string) error {
+func CreateCharacter(id int, name string) (int, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
@@ -52,5 +52,5 @@ func CreateCharacter(id int, name string) error {
 	})
 	g.userCharacters[id] = append(g.userCharacters[id], len(g.characters)-1)
 
-	return nil
+	return len(g.characters) - 1, nil
 }
