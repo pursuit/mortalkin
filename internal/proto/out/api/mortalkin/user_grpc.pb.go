@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	Login(ctx context.Context, in *LoginPayload, opts ...grpc.CallOption) (*LoginResponse, error)
+	CreateCharacter(ctx context.Context, in *CreateCharacterPayload, opts ...grpc.CallOption) (*CreateCharacterResponse, error)
 }
 
 type userClient struct {
@@ -38,11 +39,21 @@ func (c *userClient) Login(ctx context.Context, in *LoginPayload, opts ...grpc.C
 	return out, nil
 }
 
+func (c *userClient) CreateCharacter(ctx context.Context, in *CreateCharacterPayload, opts ...grpc.CallOption) (*CreateCharacterResponse, error) {
+	out := new(CreateCharacterResponse)
+	err := c.cc.Invoke(ctx, "/pursuit.api.mortalkin.User/CreateCharacter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
 	Login(context.Context, *LoginPayload) (*LoginResponse, error)
+	CreateCharacter(context.Context, *CreateCharacterPayload) (*CreateCharacterResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -52,6 +63,9 @@ type UnimplementedUserServer struct {
 
 func (UnimplementedUserServer) Login(context.Context, *LoginPayload) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedUserServer) CreateCharacter(context.Context, *CreateCharacterPayload) (*CreateCharacterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCharacter not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -84,6 +98,24 @@ func _User_Login_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_CreateCharacter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCharacterPayload)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).CreateCharacter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pursuit.api.mortalkin.User/CreateCharacter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).CreateCharacter(ctx, req.(*CreateCharacterPayload))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -94,6 +126,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _User_Login_Handler,
+		},
+		{
+			MethodName: "CreateCharacter",
+			Handler:    _User_CreateCharacter_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
