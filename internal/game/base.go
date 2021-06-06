@@ -9,11 +9,8 @@ var g gameManager
 type gameManager struct {
 	mu sync.RWMutex
 
-	userCharacters     map[int][]int
-	userCharactersRWMu sync.RWMutex
-
 	characters     []character
-	charactersRWMu sync.RWMutex
+	userCharacters map[int][]int
 }
 
 func init() {
