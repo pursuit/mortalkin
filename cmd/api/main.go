@@ -17,7 +17,7 @@ import (
 func main() {
 	defer log.Println("Shutdown the server success")
 
-	portalConn, err := grpc.Dial(":5004", grpc.WithInsecure())
+	portalConn, err := grpc.Dial(":5001", grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
