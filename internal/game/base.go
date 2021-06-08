@@ -1,7 +1,11 @@
 package game
 
 import (
+	"errors"
+	"io"
 	"sync"
+
+	"github.com/pursuit/mortalkin/internal/proto/out/api/mortalkin"
 )
 
 var g gameManager
@@ -11,6 +15,8 @@ type gameManager struct {
 
 	characters     []character
 	userCharacters map[int][]int
+
+	activeChars map[int]struct{}
 }
 
 func init() {
@@ -18,35 +24,42 @@ func init() {
 	g.characters = make([]character, 0)
 }
 
-type character struct {
-	id       int
-	name     string
-	position position
+func disconnect(id int) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	delete(g.activeChars, id)
 }
 
-func (this character) GetID() int {
-	return this.id
-}
+func Connect(id int, userID int, stream mortalkin_proto.Game_PlayServer) error {
+	g.mu.Lock()
+	if _, isPlaying := g.activeChars[id]; isPlaying {
+		return errors.New("multiple client")
+	}
 
-func (this character) GetName() string {
-	return this.name
-}
+	if id >= len(g.characters) {
+		return errors.New("char not exists")
+	}
 
-func (this character) GetPosition() position {
-	return this.position
-}
+	if g.characters[id].userID != userID {
+		return errors.New("not allowed to play this char")
+	}
 
-type position struct {
-	x int
-	y int
-}
+	g.activeChars[id] = struct{}{}
+	g.mu.Unlock()
 
-func (this position) GetX() int {
-	return this.x
-}
+	for {
+		_, err := stream.Recv()
+		if err != nil {
+			disconnect(id)
 
-func (this position) GetY() int {
-	return this.y
+			if err == io.EOF {
+				return nil
+			}
+
+			return err
+		}
+	}
 }
 
 func GetCharacters(id int) []character {
@@ -71,8 +84,9 @@ func CreateCharacter(id int, name string) (character, error) {
 	defer g.mu.Unlock()
 
 	char := character{
-		id:   len(g.characters),
-		name: name,
+		id:     len(g.characters),
+		userID: id,
+		name:   name,
 	}
 
 	g.characters = append(g.characters, char)
