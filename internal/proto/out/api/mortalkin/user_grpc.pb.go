@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	Login(ctx context.Context, in *LoginPayload, opts ...grpc.CallOption) (*LoginResponse, error)
-	CreateCharacter(ctx context.Context, in *CreateCharacterPayload, opts ...grpc.CallOption) (*CreateCharacterResponse, error)
+	CreateCharacter(ctx context.Context, in *CreateCharacterPayload, opts ...grpc.CallOption) (*Character, error)
 }
 
 type userClient struct {
@@ -39,8 +39,8 @@ func (c *userClient) Login(ctx context.Context, in *LoginPayload, opts ...grpc.C
 	return out, nil
 }
 
-func (c *userClient) CreateCharacter(ctx context.Context, in *CreateCharacterPayload, opts ...grpc.CallOption) (*CreateCharacterResponse, error) {
-	out := new(CreateCharacterResponse)
+func (c *userClient) CreateCharacter(ctx context.Context, in *CreateCharacterPayload, opts ...grpc.CallOption) (*Character, error) {
+	out := new(Character)
 	err := c.cc.Invoke(ctx, "/pursuit.api.mortalkin.User/CreateCharacter", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (c *userClient) CreateCharacter(ctx context.Context, in *CreateCharacterPay
 // for forward compatibility
 type UserServer interface {
 	Login(context.Context, *LoginPayload) (*LoginResponse, error)
-	CreateCharacter(context.Context, *CreateCharacterPayload) (*CreateCharacterResponse, error)
+	CreateCharacter(context.Context, *CreateCharacterPayload) (*Character, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -64,7 +64,7 @@ type UnimplementedUserServer struct {
 func (UnimplementedUserServer) Login(context.Context, *LoginPayload) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedUserServer) CreateCharacter(context.Context, *CreateCharacterPayload) (*CreateCharacterResponse, error) {
+func (UnimplementedUserServer) CreateCharacter(context.Context, *CreateCharacterPayload) (*Character, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCharacter not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}

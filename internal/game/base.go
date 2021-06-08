@@ -19,11 +19,34 @@ func init() {
 }
 
 type character struct {
-	name string
+	id       int
+	name     string
+	position position
+}
+
+func (this character) GetID() int {
+	return this.id
 }
 
 func (this character) GetName() string {
 	return this.name
+}
+
+func (this character) GetPosition() position {
+	return this.position
+}
+
+type position struct {
+	x int
+	y int
+}
+
+func (this position) GetX() int {
+	return this.x
+}
+
+func (this position) GetY() int {
+	return this.y
 }
 
 func GetCharacters(id int) []character {
@@ -43,14 +66,17 @@ func GetCharacters(id int) []character {
 	return characters
 }
 
-func CreateCharacter(id int, name string) (int, error) {
+func CreateCharacter(id int, name string) (character, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
-	g.characters = append(g.characters, character{
+	char := character{
+		id:   len(g.characters),
 		name: name,
-	})
-	g.userCharacters[id] = append(g.userCharacters[id], len(g.characters)-1)
+	}
 
-	return len(g.characters) - 1, nil
+	g.characters = append(g.characters, char)
+	g.userCharacters[id] = append(g.userCharacters[id], char.id)
+
+	return char, nil
 }
