@@ -65,7 +65,7 @@ func (this UserServer) CreateCharacter(ctx context.Context, in *mortalkin_proto.
 	}
 
 	return &mortalkin_proto.Character{
-		Id: int64(character.GetID()),
+		Id:   int64(character.GetID()),
 		Name: character.GetName(),
 		Position: &mortalkin_proto.Position{
 			X: int32(character.GetPosition().GetX()),
