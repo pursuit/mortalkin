@@ -34,6 +34,9 @@ func main() {
 	mortalkin_proto.RegisterUserServer(grpcServer, server.UserServer{
 		UserClient: userClient,
 	})
+	mortalkin_proto.RegisterGameServer(grpcServer, server.GameServer{
+		UserClient: userClient,
+	})
 
 	go func() {
 		log.Println("listen to 5004")
