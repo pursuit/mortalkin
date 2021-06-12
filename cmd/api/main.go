@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/pursuit/mortalkin/internal/proto/out/api/mortalkin"
 	"github.com/pursuit/mortalkin/internal/proto/out/api/portal"
@@ -53,5 +55,21 @@ func main() {
 
 	log.Println("Shutting down the server")
 
-	grpcServer.GracefulStop()
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	gracefulChan := make(chan bool)
+
+	go func() {
+		grpcServer.GracefulStop()
+		gracefulChan <- true
+	}()
+
+	select {
+	case <-gracefulChan:
+		break
+	case <-ctx.Done():
+		log.Println("Forcing shut down")
+		grpcServer.Stop()
+	}
 }
