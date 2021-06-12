@@ -13,7 +13,7 @@ import (
 )
 
 type GameServer struct {
-	mortalkin_proto.UnimplementedUserServer
+	mortalkin_proto.UnimplementedGameServer
 
 	UserClient portal_proto.UserClient
 }
