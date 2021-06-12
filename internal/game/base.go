@@ -22,6 +22,7 @@ type gameManager struct {
 func init() {
 	g.userCharacters = make(map[int][]int)
 	g.characters = make([]character, 0)
+	g.activeChars = make(map[int]struct{})
 }
 
 func disconnect(id int) {
