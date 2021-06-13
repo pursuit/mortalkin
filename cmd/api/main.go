@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/pursuit/mortalkin/internal/game"
 	"github.com/pursuit/mortalkin/internal/proto/out/api/mortalkin"
 	"github.com/pursuit/mortalkin/internal/proto/out/api/portal"
 	"github.com/pursuit/mortalkin/internal/proto/server"
@@ -18,6 +19,9 @@ import (
 
 func main() {
 	defer log.Println("Shutdown the server success")
+
+	go game.StartServer()
+	defer game.Shutdown()
 
 	portalConn, err := grpc.Dial(":5001", grpc.WithInsecure())
 	if err != nil {
