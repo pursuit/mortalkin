@@ -99,6 +99,33 @@ func Prepare() {
 }
 
 func StartServer() {
+	go func() {
+		cnt := 0
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				writeSnapshot()
+				cnt += 1
+				if cnt >= 5 {
+					cnt = 0
+					files, err := ioutil.ReadDir("internal/snapshot")
+					if err != nil {
+						panic(err)
+					}
+
+					for i := 1; i+1 < len(files); i += 1 {
+						filename := fmt.Sprintf("internal/snapshot/%s", files[i].Name())
+						if err := os.Remove(filename); err != nil {
+							panic(err)
+						}
+					}
+				}
+			}
+		}
+	}()
+
 	ticker := time.NewTicker(16 * time.Millisecond)
 	defer ticker.Stop()
 	for {
