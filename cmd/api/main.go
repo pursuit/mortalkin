@@ -20,6 +20,7 @@ import (
 func main() {
 	defer log.Println("Shutdown the server success")
 
+	game.Prepare()
 	go game.StartServer()
 	defer game.Shutdown()
 
