@@ -1,8 +1,11 @@
 package game
 
 import (
+	"encoding/gob"
 	"errors"
+	"fmt"
 	"io"
+	"os"
 	"sync"
 	"time"
 
@@ -24,10 +27,47 @@ type gameManager struct {
 	activeChars map[int]chan mortalkin_proto.GameNotif
 }
 
+type gameSnapshot struct {
+	Characters     []character
+	UserCharacters map[int][]int
+}
+
 func init() {
 	g.userCharacters = make(map[int][]int)
 	g.characters = make([]character, 0)
 	g.activeChars = make(map[int]chan mortalkin_proto.GameNotif)
+}
+
+func writeSnapshot() {
+	g.mu.Lock()
+
+	characters := make([]character, len(g.characters))
+	copy(characters, g.characters)
+
+	userCharacters := make(map[int][]int)
+	for k, v := range g.userCharacters {
+		tmp := make([]int, len(v))
+		copy(tmp, v)
+		userCharacters[k] = tmp
+	}
+
+	g.mu.Unlock()
+
+	snapshot := gameSnapshot{
+		Characters: characters,
+		UserCharacters: userCharacters,
+	}
+
+	filename := fmt.Sprintf("internal/snapshot/%d.gob", time.Now().Unix())
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(err)
+	}
+
+    defer file.Close()
+
+    encoder := gob.NewEncoder(file)
+    encoder.Encode(snapshot)
 }
 
 func StartServer() {
@@ -84,6 +124,7 @@ func processCharacterOn() {
 func Shutdown() {
 	shuttingDown <- true
 	<-shutDown
+	writeSnapshot()
 }
 
 func disconnect(id int) {
