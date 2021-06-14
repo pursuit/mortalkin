@@ -1,33 +1,33 @@
 package game
 
-type character struct {
-	id       int
-	userID   int
-	name     string
-	position position
+type Character struct {
+	ID       int
+	UserID   int
+	Name     string
+	Position Position
 }
 
-func (this character) GetID() int {
-	return this.id
+func (this Character) GetID() int {
+	return this.ID
 }
 
-func (this character) GetName() string {
-	return this.name
+func (this Character) GetName() string {
+	return this.Name
 }
 
-func (this character) GetPosition() position {
-	return this.position
+func (this Character) GetPosition() Position {
+	return this.Position
 }
 
-type position struct {
-	x int
-	y int
+type Position struct {
+	X int
+	Y int
 }
 
-func (this position) GetX() int {
-	return this.x
+func (this Position) GetX() int {
+	return this.X
 }
 
-func (this position) GetY() int {
-	return this.y
+func (this Position) GetY() int {
+	return this.Y
 }
