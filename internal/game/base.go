@@ -162,8 +162,8 @@ func processCharacterOn() {
 				Id:   uint32(id),
 				Name: char.Name,
 				Position: &mortalkin_proto.Position{
-					X: uint32(char.Position.X),
-					Y: uint32(char.Position.Y),
+					X: int32(char.Position.X),
+					Y: int32(char.Position.Y),
 				},
 			}
 		}
