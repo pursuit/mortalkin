@@ -20,7 +20,7 @@ var shutDown = make(chan bool)
 var queueCharacterOn = make(chan int, 1024)
 
 type gameManager struct {
-	mu sync.RWMutex
+	sync.RWMutex
 
 	characters     []Character
 	userCharacters map[int][]int
@@ -40,7 +40,7 @@ func init() {
 }
 
 func writeSnapshot() {
-	g.mu.Lock()
+	g.Lock()
 
 	characters := make([]Character, len(g.characters))
 	copy(characters, g.characters)
@@ -52,7 +52,7 @@ func writeSnapshot() {
 		userCharacters[k] = tmp
 	}
 
-	g.mu.Unlock()
+	g.Unlock()
 
 	snapshot := GameSnapshot{
 		Characters:     characters,
@@ -152,8 +152,8 @@ func processCharacterOn() {
 	}
 
 	if len(ons) > 0 {
-		g.mu.Lock()
-		defer g.mu.Unlock()
+		g.Lock()
+		defer g.Unlock()
 
 		characters := make([]*mortalkin_proto.Character, len(ons), len(ons))
 		for i, id := range ons {
@@ -183,32 +183,32 @@ func Shutdown() {
 }
 
 func disconnect(id int) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
+	g.Lock()
+	defer g.Unlock()
 
 	delete(g.activeChars, id)
 }
 
 func Connect(id int, userID int, stream mortalkin_proto.Game_PlayServer) error {
-	g.mu.Lock()
+	g.Lock()
 	if _, isPlaying := g.activeChars[id]; isPlaying {
-		g.mu.Unlock()
+		g.Unlock()
 		return errors.New("multiple client")
 	}
 
 	if id >= len(g.characters) {
-		g.mu.Unlock()
+		g.Unlock()
 		return errors.New("char not exists")
 	}
 
 	if g.characters[id].UserID != userID {
-		g.mu.Unlock()
+		g.Unlock()
 		return errors.New("not allowed to play this char")
 	}
 
 	c := make(chan mortalkin_proto.GameNotif)
 	g.activeChars[id] = c
-	g.mu.Unlock()
+	g.Unlock()
 
 	queueCharacterOn <- id
 
@@ -234,8 +234,8 @@ func Connect(id int, userID int, stream mortalkin_proto.Game_PlayServer) error {
 }
 
 func GetCharacters(id int) []Character {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
+	g.RLock()
+	defer g.RUnlock()
 
 	characterIDs, foundUser := g.userCharacters[id]
 	if !foundUser {
@@ -251,8 +251,8 @@ func GetCharacters(id int) []Character {
 }
 
 func CreateCharacter(id int, name string) (Character, error) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
+	g.Lock()
+	defer g.Unlock()
 
 	char := Character{
 		ID:     len(g.characters),
