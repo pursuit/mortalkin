@@ -192,14 +192,17 @@ func disconnect(id int) {
 func Connect(id int, userID int, stream mortalkin_proto.Game_PlayServer) error {
 	g.mu.Lock()
 	if _, isPlaying := g.activeChars[id]; isPlaying {
+		g.mu.Unlock()
 		return errors.New("multiple client")
 	}
 
 	if id >= len(g.characters) {
+		g.mu.Unlock()
 		return errors.New("char not exists")
 	}
 
 	if g.characters[id].UserID != userID {
+		g.mu.Unlock()
 		return errors.New("not allowed to play this char")
 	}
 
