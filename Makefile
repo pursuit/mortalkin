@@ -1,8 +1,11 @@
+build:
+	docker build . -t pursuit-mortalkin-dock
+
 run:
-	go run cmd/api/main.go
+	docker run --net pursuit_network -p 5004:5004 pursuit-mortalkin-dock
 
 pretty:
-	gofmt -s -w .
+	go fmt $(go list ./...)
 
 test:
-	go test -race ./...
+	go test `go list ./... | grep -v cmd | grep -v vendor`

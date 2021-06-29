@@ -59,7 +59,7 @@ func writeSnapshot() {
 		UserCharacters: userCharacters,
 	}
 
-	filename := fmt.Sprintf("internal/snapshot/%d.gob", time.Now().Unix())
+	filename := fmt.Sprintf("resource/snapshot/%d.gob", time.Now().Unix())
 	file, err := os.Create(filename)
 	if err != nil {
 		panic(err)
@@ -72,7 +72,7 @@ func writeSnapshot() {
 }
 
 func Prepare() {
-	files, err := ioutil.ReadDir("internal/snapshot")
+	files, err := ioutil.ReadDir("resource/snapshot")
 	if err != nil {
 		panic(err)
 	}
@@ -81,7 +81,7 @@ func Prepare() {
 		return
 	}
 
-	filename := fmt.Sprintf("internal/snapshot/%s", files[len(files)-1].Name())
+	filename := fmt.Sprintf("resource/snapshot/%s", files[len(files)-1].Name())
 	dataFile, err := os.Open(filename)
 	if err != nil {
 		panic(err)
@@ -110,13 +110,13 @@ func StartServer() {
 				cnt += 1
 				if cnt >= 5 {
 					cnt = 0
-					files, err := ioutil.ReadDir("internal/snapshot")
+					files, err := ioutil.ReadDir("resource/snapshot")
 					if err != nil {
 						panic(err)
 					}
 
 					for i := 1; i+1 < len(files); i += 1 {
-						filename := fmt.Sprintf("internal/snapshot/%s", files[i].Name())
+						filename := fmt.Sprintf("resource/snapshot/%s", files[i].Name())
 						if err := os.Remove(filename); err != nil {
 							panic(err)
 						}
