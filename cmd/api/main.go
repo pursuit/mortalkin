@@ -24,7 +24,7 @@ func main() {
 	go game.StartServer()
 	defer game.Shutdown()
 
-	portalConn, err := grpc.Dial(":5001", grpc.WithInsecure())
+	portalConn, err := grpc.Dial("portal:5001", grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
