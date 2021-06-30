@@ -5,7 +5,7 @@ run:
 	docker run --net pursuit_network -p 5004:5004 pursuit-mortalkin-dock
 
 pretty:
-	go fmt $(go list ./...)
+	go fmt `go list ./...`
 
 test:
 	go test `go list ./... | grep -v cmd | grep -v vendor`
