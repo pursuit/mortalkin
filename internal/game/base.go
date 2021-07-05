@@ -14,8 +14,8 @@ import (
 )
 
 var g gameManager
-var shuttingDown = make(chan bool)
-var shutDown = make(chan bool)
+var shuttingDown = make(chan struct{})
+var shutDown = make(chan struct{})
 
 var queueCharacterOn = make(chan int, 1024)
 
@@ -131,7 +131,7 @@ func StartServer() {
 	for {
 		select {
 		case <-shuttingDown:
-			shutDown <- true
+			shutDown <- struct{}{}
 			return
 		case <-ticker.C:
 			processCharacterOn()
@@ -177,7 +177,7 @@ func processCharacterOn() {
 }
 
 func Shutdown() {
-	shuttingDown <- true
+	shuttingDown <- struct{}{}
 	<-shutDown
 	writeSnapshot()
 }

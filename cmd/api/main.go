@@ -63,11 +63,11 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	gracefulChan := make(chan bool)
+	gracefulChan := make(chan struct{})
 
 	go func() {
 		grpcServer.GracefulStop()
-		gracefulChan <- true
+		gracefulChan <- struct{}{}
 	}()
 
 	select {
