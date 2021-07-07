@@ -18,18 +18,22 @@ func periodicallyWriteSnapshot() {
 			cnt += 1
 			if cnt >= 5 {
 				cnt = 0
-				files, err := ioutil.ReadDir("resource/snapshot")
-				if err != nil {
-					panic(err)
-				}
-
-				for i := 1; i+1 < len(files); i += 1 {
-					filename := fmt.Sprintf("resource/snapshot/%s", files[i].Name())
-					if err := os.Remove(filename); err != nil {
-						panic(err)
-					}
-				}
+				cleanupSnapshot()
 			}
+		}
+	}
+}
+
+func cleanupSnapshot() {
+	files, err := ioutil.ReadDir("resource/snapshot")
+	if err != nil {
+		panic(err)
+	}
+
+	for i := 1; i+1 < len(files); i += 1 {
+		filename := fmt.Sprintf("resource/snapshot/%s", files[i].Name())
+		if err := os.Remove(filename); err != nil {
+			panic(err)
 		}
 	}
 }
