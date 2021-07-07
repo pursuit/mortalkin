@@ -1,6 +1,7 @@
 package game
 
 import (
+	"encoding/gob"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -22,6 +23,38 @@ func periodicallyWriteSnapshot() {
 			}
 		}
 	}
+}
+
+func writeSnapshot() {
+	g.Lock()
+
+	characters := make([]Character, len(g.characters))
+	copy(characters, g.characters)
+
+	userCharacters := make(map[int][]int)
+	for k, v := range g.userCharacters {
+		tmp := make([]int, len(v))
+		copy(tmp, v)
+		userCharacters[k] = tmp
+	}
+
+	g.Unlock()
+
+	snapshot := GameSnapshot{
+		Characters:     characters,
+		UserCharacters: userCharacters,
+	}
+
+	filename := fmt.Sprintf("resource/snapshot/%d.gob", time.Now().Unix())
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+
+	encoder := gob.NewEncoder(file)
+	encoder.Encode(snapshot)
 }
 
 func cleanupSnapshot() {
