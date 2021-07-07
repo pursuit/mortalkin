@@ -39,38 +39,6 @@ func init() {
 	g.activeChars = make(map[int]chan mortalkin_proto.GameNotif)
 }
 
-func writeSnapshot() {
-	g.Lock()
-
-	characters := make([]Character, len(g.characters))
-	copy(characters, g.characters)
-
-	userCharacters := make(map[int][]int)
-	for k, v := range g.userCharacters {
-		tmp := make([]int, len(v))
-		copy(tmp, v)
-		userCharacters[k] = tmp
-	}
-
-	g.Unlock()
-
-	snapshot := GameSnapshot{
-		Characters:     characters,
-		UserCharacters: userCharacters,
-	}
-
-	filename := fmt.Sprintf("resource/snapshot/%d.gob", time.Now().Unix())
-	file, err := os.Create(filename)
-	if err != nil {
-		panic(err)
-	}
-
-	defer file.Close()
-
-	encoder := gob.NewEncoder(file)
-	encoder.Encode(snapshot)
-}
-
 func Prepare() {
 	files, err := ioutil.ReadDir("resource/snapshot")
 	if err != nil {
@@ -99,32 +67,7 @@ func Prepare() {
 }
 
 func StartServer() {
-	go func() {
-		cnt := 0
-		ticker := time.NewTicker(1 * time.Minute)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ticker.C:
-				writeSnapshot()
-				cnt += 1
-				if cnt >= 5 {
-					cnt = 0
-					files, err := ioutil.ReadDir("resource/snapshot")
-					if err != nil {
-						panic(err)
-					}
-
-					for i := 1; i+1 < len(files); i += 1 {
-						filename := fmt.Sprintf("resource/snapshot/%s", files[i].Name())
-						if err := os.Remove(filename); err != nil {
-							panic(err)
-						}
-					}
-				}
-			}
-		}
-	}()
+	go periodicallyWriteSnapshot()
 
 	ticker := time.NewTicker(16 * time.Millisecond)
 	defer ticker.Stop()
