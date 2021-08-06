@@ -43,8 +43,8 @@ func (this UserServer) Login(ctx context.Context, in *mortalkin_proto.LoginPaylo
 	resp.Characters = make([]*mortalkin_proto.Character, len(gameCharacters), len(gameCharacters))
 	for i, char := range gameCharacters {
 		resp.Characters[i] = &mortalkin_proto.Character{
-			Id:       uint32(char.GetID()),
-			Name:     char.GetName(),
+			Id:   uint32(char.GetID()),
+			Name: char.GetName(),
 			Position: &mortalkin_proto.Position{
 				X: int32(char.Position.X),
 				Y: int32(char.Position.Y),

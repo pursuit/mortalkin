@@ -38,7 +38,7 @@ func Connect(id int, userID int, stream mortalkin_proto.Game_PlayServer) error {
 	}()
 
 	for {
-		_, err := stream.Recv()
+		notif, err := stream.Recv()
 		if err != nil {
 			disconnect(id)
 
@@ -48,6 +48,11 @@ func Connect(id int, userID int, stream mortalkin_proto.Game_PlayServer) error {
 
 			return err
 		}
+
+		Move(int(notif.CharacterId), Position{
+			X: int(notif.Position.X),
+			Y: int(notif.Position.Y),
+		})
 	}
 }
 

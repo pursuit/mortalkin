@@ -87,6 +87,30 @@ func Shutdown() {
 	writeSnapshot()
 }
 
+func Move(charID int, position Position) {
+	g.Lock()
+	defer g.Unlock()
+
+	char := &g.characters[charID]
+	char.Position = position
+
+	chars := make([]*mortalkin_proto.Character, 1)
+	chars[0] = &mortalkin_proto.Character{
+		Id:   uint32(charID),
+		Name: char.Name,
+		Position: &mortalkin_proto.Position{
+			X: int32(position.X),
+			Y: int32(position.Y),
+		},
+	}
+
+	for _, c := range g.activeChars {
+		c <- mortalkin_proto.GameNotif{
+			Characters: chars,
+		}
+	}
+}
+
 func processCharacterOn() {
 	found := true
 	ons := make([]int, 0)
@@ -100,8 +124,8 @@ func processCharacterOn() {
 	}
 
 	if len(ons) > 0 {
-		g.Lock()
-		defer g.Unlock()
+		g.RLock()
+		defer g.RUnlock()
 
 		characters := make([]*mortalkin_proto.Character, len(ons), len(ons))
 		for i, id := range ons {
