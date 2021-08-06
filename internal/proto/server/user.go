@@ -45,6 +45,10 @@ func (this UserServer) Login(ctx context.Context, in *mortalkin_proto.LoginPaylo
 		resp.Characters[i] = &mortalkin_proto.Character{
 			Id:   uint32(char.GetID()),
 			Name: char.GetName(),
+			Position: &mortalkin_proto.Position{
+				X: int32(char.Position.X),
+				Y: int32(char.Position.Y),
+			},
 		}
 	}
 

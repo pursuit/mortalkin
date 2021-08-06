@@ -26,7 +26,7 @@ func periodicallyWriteSnapshot() {
 }
 
 func writeSnapshot() {
-	g.Lock()
+	g.RLock()
 
 	characters := make([]Character, len(g.characters))
 	copy(characters, g.characters)
@@ -38,7 +38,7 @@ func writeSnapshot() {
 		userCharacters[k] = tmp
 	}
 
-	g.Unlock()
+	g.RUnlock()
 
 	snapshot := GameSnapshot{
 		Characters:     characters,
