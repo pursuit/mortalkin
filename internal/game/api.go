@@ -76,6 +76,10 @@ func CreateCharacter(id int, name string) (Character, error) {
 		ID:     len(g.characters),
 		UserID: id,
 		Name:   name,
+		Position: Position{
+			X: 5,
+			Y: 0,
+		},
 	}
 
 	g.characters = append(g.characters, char)
