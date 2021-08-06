@@ -92,7 +92,7 @@ func Move(charID int, position Position) {
 	defer g.Unlock()
 
 	char := &g.characters[charID]
-	char.Position = position
+	char.Position = position // TODO: validate the speed
 
 	chars := make([]*mortalkin_proto.Character, 1)
 	chars[0] = &mortalkin_proto.Character{
