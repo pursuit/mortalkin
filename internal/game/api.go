@@ -92,3 +92,7 @@ func CreateCharacter(id int, name string) (Character, error) {
 
 	return char, nil
 }
+
+func GetSummary() Summary {
+	return getSummary()
+}

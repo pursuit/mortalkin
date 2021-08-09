@@ -63,6 +63,7 @@ func Prepare() {
 
 	g.characters = snapshot.Characters
 	g.userCharacters = snapshot.UserCharacters
+	prepareSummary()
 }
 
 func StartServer() {
