@@ -1,17 +1,37 @@
 package game
 
+import (
+	"sync"
+)
+
 type Summary struct {
 	OnlineUser     int
 	RegisteredUser int
 }
 
-var summary Summary
+type SummaryManager struct {
+	sync.RWMutex
+
+	summary Summary
+}
+
+var summaryManager SummaryManager
 
 func prepareSummary() {
-	summary.OnlineUser = len(g.activeChars)
-	summary.RegisteredUser = len(g.userCharacters)
+	summaryManager.summary.OnlineUser = len(g.activeChars)
+	summaryManager.summary.RegisteredUser = len(g.userCharacters)
+}
+
+func reloadSummary() {
+	summaryManager.Lock()
+	defer summaryManager.Unlock()
+
+	prepareSummary()
 }
 
 func getSummary() Summary {
-	return summary
+	summaryManager.RLock()
+	defer summaryManager.RUnlock()
+
+	return summaryManager.summary
 }
